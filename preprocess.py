@@ -85,9 +85,10 @@ if __name__ == '__main__':
     if not os.path.exists("processed"):
         os.makedirs("processed")
 
+    print(f)
+
     with open(os.path.join("processed", "vocab.txt"), "w") as f:
         for w in vocab:
-            print(w, file=f)
 
     with open(os.path.join("processed", "train_ix.pkl"), "wb") as f:
         pickle.dump(train_ix, f)
