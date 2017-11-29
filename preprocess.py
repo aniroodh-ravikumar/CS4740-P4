@@ -54,9 +54,13 @@ if __name__ == '__main__':
     word_counter = Counter(w for _, sent in train_sents for w in sent)
     word_counter.update(w for sent in unlabeled_sents for w in sent)
 
+    print(len(word_counter.most_common()))
+
     # toss words that don't appear at least 10 times
     vocab = [w for w, _ in word_counter.most_common()
              if word_counter[w] >= 10]
+
+    print(len(vocab))
 
     # add special tokens
     unk = '__UNK__'
@@ -85,10 +89,9 @@ if __name__ == '__main__':
     if not os.path.exists("processed"):
         os.makedirs("processed")
 
-    print(f)
-
     with open(os.path.join("processed", "vocab.txt"), "w") as f:
         for w in vocab:
+            pass
 
     with open(os.path.join("processed", "train_ix.pkl"), "wb") as f:
         pickle.dump(train_ix, f)
