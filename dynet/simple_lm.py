@@ -15,7 +15,7 @@ MAX_EPOCHS = 20
 BATCH_SIZE = 32
 HIDDEN_DIM = 32
 USE_UNLABELED = False
-VOCAB_SIZE = __FIXME__
+VOCAB_SIZE = 31810
 
 
 def make_batches(data, batch_size):
@@ -42,7 +42,7 @@ class SimpleNLM(object):
 
         self.embed = params.add_lookup_parameters((vocab_size, hidden_dim))
 
-        self.W_hid = params.add_parameters((hidden_dim, hidden_dim))
+        self.W_hid = params.add_parameters((hidden_dim, 3*hidden_dim))
         self.b_hid = params.add_parameters((hidden_dim))
 
         self.W_out = params.add_parameters((vocab_size, hidden_dim))
@@ -57,11 +57,17 @@ class SimpleNLM(object):
 
         losses = []
         for _, sent in batch:
-            for i in range(1, len(sent)):
+            for i in range(3, len(sent)):
+                prev_prev_prev_word = sent[i-3]
+                prev_prev_word = sent[i-2]
                 prev_word_ix = sent[i - 1]
                 curr_word_ix = sent[i]
 
-                ctx = dy.lookup(self.embed, prev_word_ix)
+                ctx1 = dy.lookup(self.embed, prev_word_ix)
+                ctx2 = dy.lookup(self.embed, prev_prev_word)
+                ctx3 = dy.lookup(self.embed, prev_prev_prev_word)
+
+                ctx = dy.concatenate([ctx1, ctx2, ctx3])
 
                 # hid is the hidden layer output, size=hidden_size
                 # compute b_hid + W_hid * ctx, but faster
@@ -93,7 +99,8 @@ if __name__ == '__main__':
         train_ix = pickle.load(f)
 
     if USE_UNLABELED:
-        __FIXME__
+        with open(os.path.join('processed', 'unlab_ix.pkl'), 'rb') as f:
+            train_ix += pickle.load(f)
 
     with open(os.path.join('processed', 'valid_ix.pkl'), 'rb') as f:
         valid_ix = pickle.load(f)

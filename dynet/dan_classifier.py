@@ -11,7 +11,7 @@ import dynet as dy
 MAX_EPOCHS = 20
 BATCH_SIZE = 32
 HIDDEN_DIM = 32
-VOCAB_SIZE = __FIXME__
+VOCAB_SIZE = 31810#__FIXME__
 
 
 def make_batches(data, batch_size):
@@ -76,7 +76,8 @@ class DANClassifier(object):
 
         # we make a dynet vector out of the true ys
         y_true = dy.inputVector([y for y, _ in sents])
-
+        if train:
+            y_true = dy.dropout(y_true, 0.5)
         # classification loss: we use the logistic loss
         # this function automatically sums over all entries.
         total_loss = dy.binary_log_loss(probas, y_true)
@@ -89,9 +90,12 @@ class DANClassifier(object):
         y_true = [y for y, _ in sents]
 
         correct = 0
-
-        # FIXME: count the number of correct predictions here
-
+        for i in range(len(y_true)):
+            if y_true[i] == 1 and probas[i] > 0.5:
+                correct +=1
+            elif y_true[i] == 0 and probas[i] <= 0.5:
+                correct +=1
+    
         return correct
 
 
@@ -99,7 +103,7 @@ if __name__ == '__main__':
 
     with open(os.path.join('processed', 'train_ix.pkl'), 'rb') as f:
         train_ix = pickle.load(f)
-
+ 
     with open(os.path.join('processed', 'valid_ix.pkl'), 'rb') as f:
         valid_ix = pickle.load(f)
 
