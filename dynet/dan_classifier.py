@@ -11,7 +11,7 @@ import dynet as dy
 MAX_EPOCHS = 20
 BATCH_SIZE = 32
 HIDDEN_DIM = 32
-VOCAB_SIZE = 31810#__FIXME__
+VOCAB_SIZE = 4748#__FIXME__
 
 
 def make_batches(data, batch_size):

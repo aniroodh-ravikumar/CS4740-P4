@@ -14,8 +14,8 @@ import dynet as dy
 MAX_EPOCHS = 20
 BATCH_SIZE = 32
 HIDDEN_DIM = 32
-USE_UNLABELED = False
-VOCAB_SIZE = 31810
+USE_UNLABELED = True
+VOCAB_SIZE = 4748
 
 
 def make_batches(data, batch_size):
@@ -42,7 +42,7 @@ class SimpleNLM(object):
 
         self.embed = params.add_lookup_parameters((vocab_size, hidden_dim))
 
-        self.W_hid = params.add_parameters((hidden_dim, 3*hidden_dim))
+        self.W_hid = params.add_parameters((hidden_dim, 2*hidden_dim))
         self.b_hid = params.add_parameters((hidden_dim))
 
         self.W_out = params.add_parameters((vocab_size, hidden_dim))
@@ -58,16 +58,16 @@ class SimpleNLM(object):
         losses = []
         for _, sent in batch:
             for i in range(3, len(sent)):
-                prev_prev_prev_word = sent[i-3]
+                #prev_prev_prev_word = sent[i-3]
                 prev_prev_word = sent[i-2]
                 prev_word_ix = sent[i - 1]
                 curr_word_ix = sent[i]
 
                 ctx1 = dy.lookup(self.embed, prev_word_ix)
                 ctx2 = dy.lookup(self.embed, prev_prev_word)
-                ctx3 = dy.lookup(self.embed, prev_prev_prev_word)
+                #ctx3 = dy.lookup(self.embed, prev_prev_prev_word)
 
-                ctx = dy.concatenate([ctx1, ctx2, ctx3])
+                ctx = dy.concatenate([ctx1, ctx2])
 
                 # hid is the hidden layer output, size=hidden_size
                 # compute b_hid + W_hid * ctx, but faster
@@ -152,4 +152,4 @@ if __name__ == '__main__':
         fn += "_unlabeled"
 
     print("Saving embeddings to {}".format(fn))
-    lm.embed.save(fn, "/embed")
+    lm.embed.save(fn, "/embed_cont2_true")
